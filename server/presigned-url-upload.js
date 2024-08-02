@@ -6,6 +6,8 @@ import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import {
   getSignedUrl,
 } from "@aws-sdk/s3-request-presigner";
+import dotenv from 'dotenv';
+dotenv.config();
 
 const readFile = promisify(readFileCallback);
 
@@ -37,6 +39,28 @@ function put(url, data) {
     req.end();
   });
 }
+
+/* async function uploadData(FILE_PATH) {
+
+  try {
+    const clientUrl = await createPresignedUrlWithClient({
+      region: process.env.S3_BUCKET_NAME,
+      bucket: BUCKET,
+      key: KEY,
+    });
+
+    // Read the file
+    const fileData = await readFile(FILE_PATH);
+
+    console.log("Calling PUT using presigned URL with client");
+    await put(clientUrl, fileData);
+
+    console.log("\nDone. Check your S3 console.");
+  } catch (err) {
+    console.error(err);
+  }
+
+} */
 
 export const main = async () => {
   const REGION = "ap-south-1";

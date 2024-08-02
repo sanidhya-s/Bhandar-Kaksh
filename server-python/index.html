@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload to S3</title>
+</head>
+<body>
+    <input type="file" id="fileInput">
+    <button onclick="uploadFile()">Upload</button>
+
+    <script>
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            console.log('Requesting pre-signed URL...');
+            const response = await fetch('http://localhost:5000/generate_presigned_url', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ file_name: file.name })
+            });
+
+            const data = await response.json();
+            console.log('Received pre-signed URL:', data);
+
+            if (response.ok) {
+                const presignedUrl = data.url;
+
+                console.log('Uploading file to S3...');
+                const uploadResponse = await fetch(presignedUrl, {
+                    method: 'PUT',
+                    body: file
+                });
+
+                if (uploadResponse.ok) {
+                    alert('File uploaded successfully.');
+                } else {
+                    alert('Failed to upload file.');
+                }
+            } else {
+                alert(`Failed to get pre-signed URL: ${data.error}`);
+            }
+        }
+    </script>
+</body>
+</html>
